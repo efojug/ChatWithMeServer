@@ -5,6 +5,8 @@ import io.ktor.server.plugins.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.channels.consumeEach
+import java.lang.Exception
 import java.time.Duration
 
 fun main(args: Array<String>) {
@@ -18,10 +20,23 @@ fun main(args: Array<String>) {
         routing {
             webSocket("/chat") {
                 println("Client connected: ${this.call.request.origin.remoteHost}")
-
+                ChatServer.addSession(this)
+                try {
+                    incoming.consumeEach { frame ->
+                        if (frame is Frame.Text) {
+                            val text = frame.readText()
+                            println("Received: $text")
+                            ChatServer.broadcast(text, this)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    ChatServer.removeSession(this)
+                }
             }
         }
-    }
+    }.start(wait = true)
 }
 
 object ChatServer {
