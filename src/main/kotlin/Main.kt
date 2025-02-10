@@ -6,14 +6,13 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.consumeEach
-import java.lang.Exception
-import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 fun main(args: Array<String>) {
     embeddedServer(Netty, port = 4380, host = "0.0.0.0") {
         install(WebSockets) {
-            pingPeriod = Duration.ofSeconds(10)
-            timeout = Duration.ofSeconds(10)
+            pingPeriod = 15.seconds
+            timeout = 15.seconds
             maxFrameSize = Long.MAX_VALUE
             masking = false
         }

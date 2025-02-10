@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "2.1.10"
     application
 }
 
@@ -13,18 +14,15 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-core:2.3.0")
-    implementation("io.ktor:ktor-server-netty:2.3.0")
-    implementation("io.ktor:ktor-server-websockets:2.3.0")
-    implementation("ch.qos.logback:logback-classic:1.2.3")
-}
-
-tasks.test {
-    useJUnitPlatform()
+    implementation("io.ktor:ktor-server-core:3.0.3")
+    implementation("io.ktor:ktor-server-netty:3.0.3")
+    implementation("io.ktor:ktor-server-websockets:3.0.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
+    implementation("ch.qos.logback:logback-classic:1.4.12")
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
 }
 
 application {
