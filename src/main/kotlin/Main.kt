@@ -29,7 +29,7 @@ data class LoginResponse(val userId: Int, val username: String, val token: Strin
 @Serializable
 data class Message(val userId: Int, val content: String, val timestamp: Long = System.currentTimeMillis())
 
-object UserStorage{
+object UserStorage {
     private val users = mutableMapOf<String, User>()
     private var nextId = 1
 
@@ -60,33 +60,39 @@ fun main(args: Array<String>) {
         routing {
             //register
             post("/register") {
+                println("${this.call.request.origin.remoteAddress} - Register request")
                 val request = call.receive<RegisterRequest>()
                 val user = UserStorage.register(request.username, request.password)
                 if (user == null) {
                     call.respond(HttpStatusCode.Conflict, "Username already exists")
+                    println("${this.call.request.origin.remoteAddress} - Register failed: Username already exists")
                 } else {
                     call.respond(HttpStatusCode.OK, "Registered successfully")
+                    println("${this.call.request.origin.remoteAddress} - Registered successfully")
                 }
-                }
+            }
 
             post("/login") {
+                println("${this.call.request.origin.remoteAddress} - Login request")
                 val request = call.receive<LoginRequest>()
                 val user = UserStorage.login(request.username, request.password)
                 if (user == null) {
                     call.respond(HttpStatusCode.Unauthorized, "Invalid username or password")
+                    println("${this.call.request.origin.remoteAddress} - Login failed: Invalid username or password")
                 } else {
                     call.respond(HttpStatusCode.OK, LoginResponse(user.id, user.username, "dummy-token"))
+                    println("${this.call.request.origin.remoteAddress} - Login successful")
                 }
             }
 
             webSocket("/chat") {
-                println("Client connected: ${this.call.request.origin.remoteHost}")
+                println("${this.call.request.origin.remoteAddress} - Client connected")
                 ChatServer.addSession(this)
                 try {
                     incoming.consumeEach { frame ->
                         if (frame is Frame.Text) {
                             val text = frame.readText()
-                            println("Received: $text")
+                            println("${this.call.request.origin.remoteAddress} - Received: $text")
                             ChatServer.broadcast(text, this)
                         }
                     }
